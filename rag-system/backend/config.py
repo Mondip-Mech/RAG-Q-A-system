@@ -77,6 +77,20 @@ class Settings:
     # ---- Memory ----
     memory_window: int = 6
 
+    # ---- Security ----
+    # Set API_KEY env var to require X-API-Key header on all API endpoints.
+    # Leave empty to run without auth (fine for local / HF Spaces personal use).
+    api_key: str = field(default_factory=lambda: os.getenv("API_KEY", ""))
+
+    # ---- Upload limits ----
+    max_upload_mb: int = field(default_factory=lambda: int(os.getenv("MAX_UPLOAD_MB", "50")))
+
+    # ---- Thread retention ----
+    max_threads: int = field(default_factory=lambda: int(os.getenv("MAX_THREADS", "200")))
+
+    # ---- Rate limiting ----
+    rate_limit: str = field(default_factory=lambda: os.getenv("RATE_LIMIT", "60/minute"))
+
     # ---- Convenience: returns the active model name based on provider ----
     @property
     def llm_model(self) -> str:

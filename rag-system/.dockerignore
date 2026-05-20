@@ -1,0 +1,16 @@
+.git
+.gitattributes
+.env
+.env.*
+__pycache__
+**/__pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+.mypy_cache
+.vscode
+.idea
+data/
+tests/
+*.md
