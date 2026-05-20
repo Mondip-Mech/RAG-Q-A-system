@@ -1,3 +1,12 @@
+---
+title: Rag Qa System
+emoji: 🤖
+colorFrom: gray
+colorTo: blue
+sdk: docker
+pinned: false
+---
+
 # RAG Q&A system
 
 A modern, hybrid-cloud RAG system with a polished Streamlit UI. Cloud LLMs (Groq Llama 3.3 70B or NVIDIA NIM) handle generation; embeddings stay local via Ollama. Built with LangChain, LangGraph, and ChromaDB.
