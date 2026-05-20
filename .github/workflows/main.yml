@@ -18,10 +18,10 @@ jobs:
           cache: pip
 
       - name: Install deps
-        run: pip install -r requirements.txt
+        run: pip install -r rag-system/requirements.txt
 
       - name: Run tests
-        run: pytest tests/ -v --tb=short
+        run: cd rag-system && pytest tests/ -v --tb=short
 
   deploy:
     runs-on: ubuntu-latest
