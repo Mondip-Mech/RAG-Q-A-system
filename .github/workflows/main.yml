@@ -39,5 +39,7 @@ jobs:
         run: |
           git config user.email "ci@github.com"
           git config user.name "GitHub Actions"
-          git remote add hf https://Mechscientist26:$HF_TOKEN@huggingface.co/spaces/Mechscientist26/rag-qa-system
-          git push hf main --force
+          # Split out only the rag-system/ subdirectory into a temporary branch.
+          # This means HF Space receives Dockerfile at its root, not buried in a subfolder.
+          git subtree split --prefix=rag-system -b hf-deploy
+          git push https://Mechscientist26:$HF_TOKEN@huggingface.co/spaces/Mechscientist26/rag-qa-system hf-deploy:main --force
