@@ -81,7 +81,13 @@ def _warmup_embedder():
     return True
 
 
-with st.spinner("Loading models (reranker + embedder)…"):
+if not st.session_state.get("_models_ready"):
+    with st.spinner("Loading models (reranker + embedder)…"):
+        _warmup_reranker()
+        _warmup_embedder()
+    st.session_state["_models_ready"] = True
+else:
+    # Already loaded — just touch the cache entries (no-op, instant)
     _warmup_reranker()
     _warmup_embedder()
 
@@ -114,16 +120,26 @@ with st.sidebar:
         accept_multiple_files=True,
         label_visibility="collapsed",
     )
+    # Guard: only ingest files that haven't been processed in this browser session.
+    # Without this, every Streamlit rerun (e.g. from widget interaction) would
+    # re-trigger ingest_file() for the same files the uploader still holds,
+    # producing an infinite rerun loop and "Skipping…" log spam.
+    if "processed_uploads" not in st.session_state:
+        st.session_state.processed_uploads = set()
+
     if uploaded:
-        with st.status("Ingesting…", expanded=True) as status:
-            for f in uploaded:
-                status.update(label=f"Ingesting {f.name}…")
-                dest = UPLOAD_DIR / f.name
-                dest.write_bytes(f.getbuffer())
-                res = ingest_file(dest, progress_cb=lambda m: status.write(m))
-                status.write(f"✅ {res['status']}: {res['file']} ({res.get('chunks', 0)} chunks)")
-            status.update(label="Done.", state="complete")
-        st.rerun()
+        new_files = [f for f in uploaded if f.name not in st.session_state.processed_uploads]
+        if new_files:
+            with st.status("Ingesting…", expanded=True) as status:
+                for f in new_files:
+                    status.update(label=f"Ingesting {f.name}…")
+                    dest = UPLOAD_DIR / f.name
+                    dest.write_bytes(f.getbuffer())
+                    res = ingest_file(dest, progress_cb=lambda m: status.write(m))
+                    status.write(f"✅ {res['status']}: {res['file']} ({res.get('chunks', 0)} chunks)")
+                    st.session_state.processed_uploads.add(f.name)
+                status.update(label="Done.", state="complete")
+            st.rerun()
 
     col1, col2 = st.columns(2)
     with col1:
